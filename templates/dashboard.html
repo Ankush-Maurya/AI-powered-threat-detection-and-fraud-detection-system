@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>AI Threat Detection Dashboard</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+
+body{
+background:#0d1117;
+font-family:Arial;
+color:white;
+margin:0;
+padding:20px;
+}
+
+.container{
+width:90%;
+margin:auto;
+}
+
+.cards{
+display:flex;
+gap:20px;
+flex-wrap:wrap;
+margin-top:20px;
+}
+
+.card{
+flex:1;
+min-width:200px;
+background:#161b22;
+padding:20px;
+border-radius:12px;
+text-align:center;
+box-shadow:0px 0px 10px #00bfff;
+}
+
+button{
+padding:10px 20px;
+background:#ff4d4d;
+color:white;
+border:none;
+border-radius:6px;
+font-size:16px;
+cursor:pointer;
+margin-bottom:20px;
+}
+
+canvas{
+background:white;
+border-radius:10px;
+padding:10px;
+margin-top:20px;
+}
+
+table{
+width:100%;
+margin-top:30px;
+border-collapse:collapse;
+}
+
+th,td{
+padding:10px;
+border-bottom:1px solid gray;
+text-align:center;
+}
+
+th{
+background:#1f2937;
+}
+
+.failed{
+color:red;
+font-weight:bold;
+}
+
+.success{
+color:lime;
+font-weight:bold;
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+<div class="container">
+
+<h2>AI Threat Detection Dashboard</h2>
+
+
+<!-- Risk Level Indicator -->
+
+<div style="
+margin-bottom:20px;
+padding:12px;
+font-size:18px;
+font-weight:bold;
+border-radius:8px;
+background:#222;
+">
+
+Attack Risk Level :
+
+<span style="
+color:
+{% if risk_level == 'LOW' %}
+lime
+{% elif risk_level == 'MEDIUM' %}
+orange
+{% else %}
+red
+{% endif %}
+">
+
+{{ risk_level }}
+
+</span>
+
+</div>
+
+
+<!-- AI Detection Button -->
+
+<form action="/detect_ai">
+<button>Run AI Threat Detection</button>
+</form>
+
+
+<!-- Cards Section -->
+
+<div class="cards">
+
+<div class="card">
+<h3>Total Attempts</h3>
+<h2>{{ total }}</h2>
+</div>
+
+<div class="card">
+<h3>Failed Attempts</h3>
+<h2>{{ failed }}</h2>
+</div>
+
+<div class="card">
+<h3>Suspicious Alerts</h3>
+<h2>{{ failed }}</h2>
+</div>
+
+<div class="card">
+<h3>Unique Attackers</h3>
+<h2>{{ attackers }}</h2>
+</div>
+
+</div>
+
+
+<!-- Security Analytics Graph -->
+
+<h3 style="margin-top:40px;">Security Analytics</h3>
+
+<canvas id="loginChart"></canvas>
+
+
+<!-- Timeline Graph -->
+
+<h3 style="margin-top:40px;">Attack Timeline</h3>
+
+<canvas id="timelineChart"></canvas>
+
+
+<!-- Logs Table -->
+
+<h3 style="margin-top:40px;">Login Attempt Logs</h3>
+
+<table>
+
+<tr>
+<th>Username</th>
+<th>Time</th>
+<th>Status</th>
+</tr>
+
+{% for row in logs %}
+
+<tr>
+
+<td>{{ row[0] }}</td>
+
+<td>{{ row[1] }}</td>
+
+<td class="{% if row[2]=='FAILED' %}failed{% else %}success{% endif %}">
+{{ row[2] }}
+</td>
+
+</tr>
+
+{% endfor %}
+
+</table>
+
+
+<!-- Charts Script -->
+
+<script>
+
+var ctx = document.getElementById('loginChart').getContext('2d');
+
+var loginChart = new Chart(ctx, {
+
+type:'bar',
+
+data:{
+labels:['Total Attempts','Failed Attempts'],
+
+datasets:[{
+
+label:'Security Analytics',
+
+data:[{{ total }},{{ failed }}],
+
+backgroundColor:[
+'rgba(54,162,235,0.6)',
+'rgba(255,99,132,0.6)'
+]
+
+}]
+},
+
+options:{
+responsive:true
+}
+
+});
+
+
+
+var timelineCtx=document.getElementById('timelineChart').getContext('2d');
+
+var timelineChart=new Chart(timelineCtx,{
+
+type:'bar',
+
+data:{
+labels:{{ times|safe }},
+
+datasets:[{
+
+label:'Login Attempts Timeline',
+
+data:Array({{ times|length }}).fill(1),
+
+backgroundColor:'rgba(255,99,132,0.5)'
+
+}]
+},
+
+options:{
+responsive:true
+}
+
+});
+
+</script>
+
+
+<!-- Auto Refresh Script (Realtime Dashboard Feel) -->
+
+<script>
+
+setInterval(function(){
+
+location.reload();
+
+},5000);
+
+</script>
+
+
+</div>
+
+</body>
+
+</html>
